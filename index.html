@@ -189,11 +189,67 @@
 </div>
 
 <script>
+  
     // CONFIGURAÇÃO SUPABASE
     const SUPABASE_URL = "https://gxfdsdsjpgaqvpxhwtkj.supabase.co"; 
     const SUPABASE_KEY = "sb_publishable_Gx4U4Iwhe7Q5bk3S32_iYA_Yzeltwvm";
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+    // REDIRECIONAMENTO AUTOMÁTICO AO ABRIR O LINK DO PROFISSIONAL
+    document.addEventListener('DOMContentLoaded', async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const proId = urlParams.get('pro');
+
+        if (proId) {
+            // Esconde a tela de escolha ("Sou Cliente / Área do Profissional")
+            const landingView = document.getElementById('view-landing') || document.getElementById('landing-page');
+            if (landingView) landingView.classList.add('hidden');
+            
+            // Exibe direto a tela do cliente
+            const clientView = document.getElementById('view-client') || document.getElementById('client-page');
+            if (clientView) clientView.classList.remove('hidden');
+
+            // Carrega apenas os serviços/ramos do profissional
+            await loadProSpecialties(proId);
+        }
+    });
+
+async function loadProSpecialties(proId) {
+    const { data: pro, error } = await db.from('professionals').select('specialties').eq('id', proId).single();
+    
+    if (error || !pro) return alert('Profissional não encontrado!');
+
+    const specialties = pro.specialties || [];
+    
+    // Mapeamento dos textos de cada card
+    const cardsData = {
+        'Cabeleireiro': { title: 'Cabeleireiro', desc: 'Cortes, coloração e tratamentos.' },
+        'Manicure': { title: 'Manicure', desc: 'Unhas, esmaltação e cuidados.' },
+        'Design de Sobrancelhas': { title: 'Design de Sobrancelhas', desc: 'Modelagem, rena e micropigmentação.' }
+    };
+
+    // Procura a div dos cards na tela do cliente
+    const container = document.querySelector('#view-client .grid') || document.getElementById('cli-specialties-grid');
+    if (!container) return;
+
+    container.innerHTML = ''; // Limpa os cards fixos
+
+    // Renderiza apenas as opções que o profissional marcou no cadastro
+    specialties.forEach(spec => {
+        if (cardsData[spec]) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.style.cursor = 'pointer';
+            card.onclick = () => selectSpecialty(spec, proId);
+            card.innerHTML = `
+                <h3>${cardsData[spec].title}</h3>
+                <p>${cardsData[spec].desc}</p>
+            `;
+            container.appendChild(card);
+        }
+    });
+}
+    
     // ESTADO DA APLICAÇÃO
     let currentPro = null;
     let selectedCategory = '';
