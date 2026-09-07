@@ -51,33 +51,33 @@
         </div>
 
         <div id="auth-register" class="hidden">
-    <h3>Novo Cadastro Profissional</h3>
-    <input type="text" id="reg-name" placeholder="Nome Completo">
-    <input type="tel" id="reg-phone" placeholder="Telefone/WhatsApp (Único)">
-    <input type="password" id="reg-pass" placeholder="Senha">
-    <input type="text" id="reg-sec-q" placeholder="Pergunta de Segurança (ex: Nome do 1º pet?)">
-    <input type="password" id="reg-sec-a" placeholder="Resposta de Segurança">
+            <h3>Novo Cadastro Profissional</h3>
+            <input type="text" id="reg-name" placeholder="Nome Completo">
+            <input type="tel" id="reg-phone" placeholder="Telefone/WhatsApp (Único)">
+            <input type="password" id="reg-pass" placeholder="Senha">
+            <input type="text" id="reg-sec-q" placeholder="Pergunta de Segurança (ex: Nome do 1º pet?)">
+            <input type="password" id="reg-sec-a" placeholder="Resposta de Segurança">
 
-    <!-- ADICIONE ESTE BLOCO AQUI -->
-    <p style="text-align:left; font-weight:bold; margin-top:15px; margin-bottom:10px;">Ramos de Atendimento:</p>
-<div style="display: flex; flex-direction: column; gap: 8px; text-align: left; margin-bottom: 15px;">
-    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; width: auto;">
-        <input type="checkbox" name="pro-spec" value="Cabeleireiro" style="width: auto; margin: 0;">
-        <span>Cabeleireiro</span>
-    </label>
-    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; width: auto;">
-        <input type="checkbox" name="pro-spec" value="Manicure" style="width: auto; margin: 0;">
-        <span>Manicure</span>
-    </label>
-    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; width: auto;">
-        <input type="checkbox" name="pro-spec" value="Design de Sobrancelhas" style="width: auto; margin: 0;">
-        <span>Design de Sobrancelhas</span>
-    </label>
-</div>
+            <p style="text-align:left; font-weight:bold; margin-top:15px; margin-bottom:10px;">Ramos de Atendimento:</p>
+            <div style="display: flex; flex-direction: column; gap: 8px; text-align: left; margin-bottom: 15px;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; width: auto;">
+                    <input type="checkbox" name="pro-spec" value="Cabeleireiro" style="width: auto; margin: 0;">
+                    <span>Cabeleireiro</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; width: auto;">
+                    <input type="checkbox" name="pro-spec" value="Manicure" style="width: auto; margin: 0;">
+                    <span>Manicure</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; width: auto;">
+                    <input type="checkbox" name="pro-spec" value="Design de Sobrancelhas" style="width: auto; margin: 0;">
+                    <span>Design de Sobrancelhas</span>
+                </label>
+            </div>
 
-    <button class="btn btn-success" onclick="registerPro()">Cadastrar</button>
-    <button class="btn btn-secondary" onclick="toggleAuthMode('login')">Voltar ao Login</button>
-</div>
+            <button class="btn btn-success" onclick="registerPro()">Cadastrar</button>
+            <button class="btn btn-secondary" onclick="toggleAuthMode('login')">Voltar ao Login</button>
+        </div>
+
         <div id="auth-recovery" class="hidden">
             <h3>Recuperar Senha</h3>
             <input type="tel" id="rec-phone" placeholder="Informe seu Telefone">
@@ -151,7 +151,7 @@
 
     <div id="view-client-categories" class="hidden">
         <h2>Selecione o Serviço Desejado</h2>
-        <div class="grid">
+        <div id="cli-specialties-grid" class="grid">
             <div class="card" onclick="selectCategory('Cabeleireiro')">
                 <h3>Cabeleireiro</h3>
                 <p>Cortes, coloração e tratamentos.</p>
@@ -189,194 +189,11 @@
 </div>
 
 <script>
-  
     // CONFIGURAÇÃO SUPABASE
     const SUPABASE_URL = "https://gxfdsdsjpgaqvpxhwtkj.supabase.co"; 
     const SUPABASE_KEY = "sb_publishable_Gx4U4Iwhe7Q5bk3S32_iYA_Yzeltwvm";
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // REDIRECIONAMENTO AUTOMÁTICO AO ABRIR O LINK DO PROFISSIONAL
-    document.addEventListener('DOMContentLoaded', async () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const proId = urlParams.get('pro');
-
-    if (proId) {
-        // Localiza a div principal do card branco
-        const mainCard = document.querySelector('.card') || document.querySelector('.container');
-        
-        if (mainCard) {
-            // Oculta os botões iniciais e exibe aviso de carregamento
-            mainCard.innerHTML = '<p style="text-align:center; padding: 20px;">Carregando opções do salão...</p>';
-            
-            // Reatribui o ID para renderizar a view do cliente
-            mainCard.id = 'view-client';
-            
-            // Carrega os cards de especialidades
-            await loadProSpecialties(proId);
-        }
-    }
-});
-
-<script>
-// CONFIGURAÇÃO SUPABASE
-const SUPABASE_URL = "https://gxfdsdsjpgaqvpxhwtkj.supabase.co"; 
-const SUPABASE_KEY = "sb_publishable_Gx4U4Iwhe7Q5bk3S32_iYA_Yzeltwvm";
-const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-// 1. FUNÇÃO QUE CARREGA AS ESPECIALIDADES
-async function loadProSpecialties(proId) {
-    const { data: pro, error } = await db.from('professionals').select('specialties').eq('id', proId).single();
-    
-    if (error || !pro) {
-        alert('Profissional não encontrado!');
-        return;
-    }
-
-    const specialties = pro.specialties || [];
-    const mainCard = document.querySelector('.card') || document.querySelector('.container');
-
-    if (!mainCard) return;
-
-    const cardsData = {
-        'Cabeleireiro': { title: 'Cabeleireiro', desc: 'Cortes, coloração e tratamentos.' },
-        'Manicure': { title: 'Manicure', desc: 'Unhas, esmaltação e cuidados.' },
-        'Design de Sobrancelhas': { title: 'Design de Sobrancelhas', desc: 'Modelagem, rena e micropigmentação.' }
-    };
-
-    let htmlContent = `<h2 style="margin-bottom: 20px; color: #333; text-align:center;">Selecione o Serviço Desejado</h2>`;
-    htmlContent += `<div id="cli-specialties-grid" style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">`;
-
-    if (specialties.length === 0) {
-        htmlContent += `<p style="text-align:center;">Nenhuma especialidade cadastrada para este profissional.</p>`;
-    } else {
-        specialties.forEach(spec => {
-            if (cardsData[spec]) {
-                htmlContent += `
-                    <div class="card" onclick="selectSpecialty('${spec}', '${proId}')" style="cursor: pointer; padding: 20px; border: 1px solid #ddd; border-radius: 8px; flex: 1; min-width: 200px; max-width: 300px; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                        <h3 style="margin-top:0; color: #8a2be2;">${cardsData[spec].title}</h3>
-                        <p style="color: #666; font-size: 14px;">${cardsData[spec].desc}</p>
-                    </div>
-                `;
-            }
-        });
-    }
-
-    htmlContent += `</div><div id="cli-services-list" class="hidden" style="margin-top: 20px;"></div>`;
-    mainCard.innerHTML = htmlContent;
-}
-
-// 2. VERIFICAÇÃO AUTOMÁTICA DA URL
-window.onload = function() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const proId = urlParams.get('pro');
-
-    if (proId) {
-        loadProSpecialties(proId);
-    }
-};
-    // Identifica o elemento principal da tela do cliente
-    const clientView = document.getElementById('view-client') || document.getElementById('client-page');
-    if (!clientView) return;
-
-    // Mapeamento das opções disponíveis
-    const cardsData = {
-        'Cabeleireiro': { title: 'Cabeleireiro', desc: 'Cortes, coloração e tratamentos.' },
-        'Manicure': { title: 'Manicure', desc: 'Unhas, esmaltação e cuidados.' },
-        'Design de Sobrancelhas': { title: 'Design de Sobrancelhas', desc: 'Modelagem, rena e micropigmentação.' }
-    };
-
-    // Monta o título da seção e o container da grid
-    let htmlContent = `<h2 style="margin-bottom: 20px; color: #333;">Selecione o Serviço Desejado</h2>`;
-    htmlContent += `<div id="cli-specialties-grid" class="grid" style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">`;
-
-    if (specialties.length === 0) {
-        htmlContent += `<p>Nenhuma especialidade cadastrada para este profissional.</p>`;
-    } else {
-        specialties.forEach(spec => {
-            if (cardsData[spec]) {
-                htmlContent += `
-                    <div class="card" onclick="selectSpecialty('${spec}', '${proId}')" style="cursor: pointer; padding: 20px; border: 1px solid #eee; border-radius: 8px; flex: 1; min-width: 200px; max-width: 300px; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                        <h3 style="margin-top:0; color: #8a2be2;">${cardsData[spec].title}</h3>
-                        <p style="color: #666; font-size: 14px;">${cardsData[spec].desc}</p>
-                    </div>
-                `;
-            }
-        });
-    }
-
-    htmlContent += `</div><div id="cli-services-list" class="hidden" style="margin-top: 20px;"></div>`;
-    
-    // Injeta todo o conteúdo diretamente dentro do container branco
-    clientView.innerHTML = htmlContent;
-}
-    
-    // Mapeamento dos textos de cada card
-    const cardsData = {
-        'Cabeleireiro': { title: 'Cabeleireiro', desc: 'Cortes, coloração e tratamentos.' },
-        'Manicure': { title: 'Manicure', desc: 'Unhas, esmaltação e cuidados.' },
-        'Design de Sobrancelhas': { title: 'Design de Sobrancelhas', desc: 'Modelagem, rena e micropigmentação.' }
-    };
-
-    // Procura a div dos cards na tela do cliente
-    const container = document.querySelector('#view-client .grid') || document.getElementById('cli-specialties-grid');
-    if (!container) return;
-
-    container.innerHTML = ''; // Limpa os cards fixos
-
-    // Renderiza apenas as opções que o profissional marcou no cadastro
-    specialties.forEach(spec => {
-        if (cardsData[spec]) {
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.style.cursor = 'pointer';
-            card.onclick = () => selectSpecialty(spec, proId);
-            card.innerHTML = `
-                <h3>${cardsData[spec].title}</h3>
-                <p>${cardsData[spec].desc}</p>
-            `;
-            container.appendChild(card);
-        }
-    });
-}
-
-    async function selectSpecialty(category, proId) {
-    // Esconde a seleção de especialidades e mostra a lista de serviços do profissional
-    const containerGrid = document.querySelector('#view-client .grid') || document.getElementById('cli-specialties-grid');
-    if (containerGrid) containerGrid.classList.add('hidden');
-
-    // Busca apenas os serviços da categoria clicada pertencentes a este profissional
-    const { data: services, error } = await db
-        .from('services')
-        .select('*')
-        .eq('pro_id', proId)
-        .eq('category', category);
-
-    if (error) return alert('Erro ao buscar serviços: ' + error.message);
-
-    // Renderiza a lista de serviços para o cliente escolher
-    const servicesListDiv = document.getElementById('cli-services-list');
-    if (servicesListDiv) {
-        servicesListDiv.classList.remove('hidden');
-        servicesListDiv.innerHTML = '<h3>Escolha o Serviço:</h3>';
-
-        if (services.length === 0) {
-            servicesListDiv.innerHTML += '<p>Nenhum serviço cadastrado nesta categoria ainda.</p>';
-            return;
-        }
-
-        services.forEach(srv => {
-            const item = document.createElement('div');
-            item.className = 'card';
-            item.style.marginBottom = '10px';
-            item.innerHTML = `
-                <strong>${srv.name}</strong> - R$ ${srv.price}
-                <button class="btn btn-success" style="margin-top:5px;" onclick="showTimeSlots('${srv.id}', '${proId}')">Agendar</button>
-            `;
-            servicesListDiv.appendChild(item);
-        });
-    }
-}
-    
     // ESTADO DA APLICAÇÃO
     let currentPro = null;
     let selectedCategory = '';
@@ -387,8 +204,12 @@ window.onload = function() {
     // NAVEGAÇÃO DE TELAS
     function showView(viewId) {
         const views = ['view-landing', 'view-pro-auth', 'view-pro-dashboard', 'view-client-categories', 'view-client-booking'];
-        views.forEach(v => document.getElementById(v).classList.add('hidden'));
-        document.getElementById(viewId).classList.remove('hidden');
+        views.forEach(v => {
+            const el = document.getElementById(v);
+            if (el) el.classList.add('hidden');
+        });
+        const targetView = document.getElementById(viewId);
+        if (targetView) targetView.classList.remove('hidden');
     }
 
     function toggleAuthMode(mode) {
@@ -398,45 +219,86 @@ window.onload = function() {
         document.getElementById(`auth-${mode}`).classList.remove('hidden');
     }
 
-    // AUTENTICAÇÃO E RECUPERAÇÃO DO PROFISSIONAL
-   async function registerPro() {
-    const name = document.getElementById('reg-name').value;
-    const phone = document.getElementById('reg-phone').value;
-    const password = document.getElementById('reg-pass').value;
-    const secQuestion = document.getElementById('reg-sec-q').value;
-    const secAnswer = document.getElementById('reg-sec-a').value.toLowerCase().trim();
+    // REDIRECIONAMENTO AUTOMÁTICO SE HOUVER URL DE PROFISSIONAL (?pro=ID)
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const proId = urlParams.get('pro');
+        if (proId) {
+            showView('view-client-categories');
+            loadProSpecialties(proId);
+        }
+    };
 
-    // Captura os ramos selecionados
-    const selectedSpecs = Array.from(document.querySelectorAll('input[name="pro-spec"]:checked'))
-                               .map(cb => cb.value);
+    // FUNÇÕES DE CARREGAMENTO DAS ESPECIALIDADES
+    async function loadProSpecialties(proId) {
+        const { data: pro, error } = await db.from('professionals').select('specialties').eq('id', proId).single();
+        if (error || !pro) return;
 
-    if(!name || !phone || !password || !secQuestion || !secAnswer) return alert('Preencha todos os campos!');
-    if(selectedSpecs.length === 0) return alert('Selecione pelo menos um ramo de atendimento!');
+        const specialties = pro.specialties || [];
+        const cardsData = {
+            'Cabeleireiro': { title: 'Cabeleireiro', desc: 'Cortes, coloração e tratamentos.' },
+            'Manicure': { title: 'Manicure', desc: 'Unhas, esmaltação e cuidados.' },
+            'Design de Sobrancelhas': { title: 'Design de Sobrancelhas', desc: 'Modelagem, rena e micropigmentação.' }
+        };
 
-    // Verifica duplicidade de telefone
-    const { data: existing } = await db.from('professionals').select('id').eq('phone', phone).single();
-    if(existing) return alert('Este número de telefone já está cadastrado!');
+        const container = document.getElementById('cli-specialties-grid');
+        if (!container) return;
 
-    // Cria a grade inicial de horários
-    const initialSchedule = {};
-    baseHours.forEach(h => initialSchedule[h] = true);
+        container.innerHTML = '';
 
-    const { data, error } = await db.from('professionals').insert([{
-        name, 
-        phone, 
-        password, 
-        sec_question: secQuestion, 
-        sec_answer: secAnswer, 
-        schedule_config: initialSchedule,
-        specialties: selectedSpecs
-    }]).select();
+        if (specialties.length === 0) {
+            container.innerHTML = '<p>Nenhuma especialidade cadastrada para este profissional.</p>';
+            return;
+        }
 
-    if(error) return alert('Erro ao cadastrar: ' + error.message);
-    
-    alert('Cadastro realizado com sucesso!');
-    currentPro = data[0];
-    initProDashboard();
-}
+        specialties.forEach(spec => {
+            if (cardsData[spec]) {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.style.cursor = 'pointer';
+                card.onclick = () => selectCategory(spec);
+                card.innerHTML = `
+                    <h3>${cardsData[spec].title}</h3>
+                    <p>${cardsData[spec].desc}</p>
+                `;
+                container.appendChild(card);
+            }
+        });
+    }
+
+    // AUTENTICAÇÃO E CADASTRO
+    async function registerPro() {
+        const name = document.getElementById('reg-name').value;
+        const phone = document.getElementById('reg-phone').value;
+        const password = document.getElementById('reg-pass').value;
+        const secQuestion = document.getElementById('reg-sec-q').value;
+        const secAnswer = document.getElementById('reg-sec-a').value.toLowerCase().trim();
+
+        const selectedSpecs = Array.from(document.querySelectorAll('input[name="pro-spec"]:checked')).map(cb => cb.value);
+
+        if(!name || !phone || !password || !secQuestion || !secAnswer) return alert('Preencha todos os campos!');
+        if(selectedSpecs.length === 0) return alert('Selecione pelo menos um ramo de atendimento!');
+
+        const { data: existing } = await db.from('professionals').select('id').eq('phone', phone).single();
+        if(existing) return alert('Este número de telefone já está cadastrado!');
+
+        const initialSchedule = {};
+        baseHours.forEach(h => initialSchedule[h] = true);
+
+        const { data, error } = await db.from('professionals').insert([{
+            name, phone, password, 
+            sec_question: secQuestion, 
+            sec_answer: secAnswer, 
+            schedule_config: initialSchedule,
+            specialties: selectedSpecs
+        }]).select();
+
+        if(error) return alert('Erro ao cadastrar: ' + error.message);
+        
+        alert('Cadastro realizado com sucesso!');
+        currentPro = data[0];
+        initProDashboard();
+    }
 
     async function loginPro() {
         const phone = document.getElementById('login-phone').value;
@@ -488,7 +350,6 @@ window.onload = function() {
         loadProScheduleConfig();
         loadProMetricsAndAppointments();
         
-        // Assinatura em tempo real para novos agendamentos
         db.channel('realtime-appointments')
           .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments' }, () => {
               loadProMetricsAndAppointments();
@@ -567,9 +428,7 @@ window.onload = function() {
         const currentMonth = new Date().getMonth();
         const currentYear = new Date().getFullYear();
 
-        // Buscar Agendamentos
         const { data: appointments } = await db.from('appointments').select('*').eq('pro_id', currentPro.id).order('date_time', { ascending: true });
-        // Buscar Despesas
         const { data: expenses } = await db.from('expenses').select('*').eq('pro_id', currentPro.id);
 
         let dayVal = 0, dayCount = 0;
@@ -612,13 +471,12 @@ window.onload = function() {
         document.getElementById('m-net-val').innerText = `Líquido: R$ ${(monthVal - monthExp).toFixed(2)}`;
     }
 
-    // ÁREA DO CLIENTE
+    // ÁREA DO CLIENTE - SELEÇÃO DE SERVIÇOS E HORÁRIOS
     async function selectCategory(cat) {
         selectedCategory = cat;
         document.getElementById('client-cat-title').innerText = `Serviços de ${cat}`;
         showView('view-client-booking');
         
-        // Verifica se há filtro de profissional no parâmetro da URL
         const urlParams = new URLSearchParams(window.location.search);
         const proFilter = urlParams.get('pro');
 
@@ -629,22 +487,21 @@ window.onload = function() {
         const container = document.getElementById('client-services-list');
         container.innerHTML = '';
 
-        (services || []).forEach(srv => {
+        if (!services || services.length === 0) {
+            container.innerHTML = '<p>Nenhum serviço disponível nesta categoria.</p>';
+            return;
+        }
+
+        services.forEach(srv => {
             container.innerHTML += `
                 <div class="card">
                     <h3>${srv.name}</h3>
-                    <p>Profissional: ${srv.professionals.name}</p>
+                    <p>Profissional: ${srv.professionals ? srv.professionals.name : 'Atendente'}</p>
                     <p><strong>R$ ${parseFloat(srv.price).toFixed(2)}</strong></p>
                     <button class="btn" onclick="startBooking('${srv.id}', '${srv.name}', ${srv.price}, '${srv.pro_id}')">Agendar</button>
                 </div>
             `;
         });
-
-        // Ouvinte em tempo real para refletir alterações de preço/serviço instantaneamente
-        db.channel('realtime-services')
-          .on('postgres_changes', { event: '*', schema: 'public', table: 'services' }, () => {
-              selectCategory(selectedCategory);
-          }).subscribe();
     }
 
     function startBooking(id, name, price, proId) {
@@ -655,9 +512,8 @@ window.onload = function() {
 
     async function loadAvailableSlots() {
         const dateVal = document.getElementById('cli-date').value;
-        if(!dateVal) return;
+        if(!dateVal || !selectedService) return;
 
-        // Buscar horários ocupados no banco de dados para o profissional nesta data
         const { data: existingApps } = await db.from('appointments')
             .select('date_time')
             .eq('pro_id', selectedService.proId)
@@ -666,9 +522,8 @@ window.onload = function() {
 
         const bookedHours = (existingApps || []).map(a => a.date_time.split('T')[1].substring(0, 5));
 
-        // Buscar configuração do profissional
         const { data: pro } = await db.from('professionals').select('schedule_config').eq('id', selectedService.proId).single();
-        const config = pro.schedule_config || {};
+        const config = (pro && pro.schedule_config) ? pro.schedule_config : {};
 
         const slotsContainer = document.getElementById('cli-slots-grid');
         slotsContainer.innerHTML = '';
@@ -688,6 +543,8 @@ window.onload = function() {
                     btn.classList.add('active');
                     selectedSlot = hour;
                 };
+            } else {
+                btn.disabled = true;
             }
             slotsContainer.appendChild(btn);
         });
@@ -698,25 +555,26 @@ window.onload = function() {
         const phone = document.getElementById('cli-phone').value;
         const date = document.getElementById('cli-date').value;
 
-        if(!name || !phone || !date || !selectedSlot) return alert('Preencha todos os campos e selecione o horário!');
+        if(!name || !phone || !date || !selectedSlot) {
+            return alert('Preencha todos os campos e escolha um horário livre!');
+        }
 
-        const dateTimeISO = `${date}T${selectedSlot}:00`;
+        const dateTime = `${date}T${selectedSlot}:00`;
 
         const { error } = await db.from('appointments').insert([{
             pro_id: selectedService.proId,
-            service_name: selectedService.name,
-            price: selectedService.price,
             client_name: name,
             client_phone: phone,
-            date_time: dateTimeISO,
-            created_at: new Date().toISOString()
+            service_name: selectedService.name,
+            price: selectedService.price,
+            date_time: dateTime
         }]);
 
-        if(error) return alert('Erro ao agendar: ' + error.message);
+        if(error) return alert('Erro ao realizar agendamento: ' + error.message);
 
         alert('Agendamento realizado com sucesso!');
         document.getElementById('booking-form').classList.add('hidden');
-        showView('view-client-categories');
+        showView('view-landing');
     }
 </script>
 </body>
