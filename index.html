@@ -249,6 +249,44 @@ async function loadProSpecialties(proId) {
         }
     });
 }
+
+    async function selectSpecialty(category, proId) {
+    // Esconde a seleção de especialidades e mostra a lista de serviços do profissional
+    const containerGrid = document.querySelector('#view-client .grid') || document.getElementById('cli-specialties-grid');
+    if (containerGrid) containerGrid.classList.add('hidden');
+
+    // Busca apenas os serviços da categoria clicada pertencentes a este profissional
+    const { data: services, error } = await db
+        .from('services')
+        .select('*')
+        .eq('pro_id', proId)
+        .eq('category', category);
+
+    if (error) return alert('Erro ao buscar serviços: ' + error.message);
+
+    // Renderiza a lista de serviços para o cliente escolher
+    const servicesListDiv = document.getElementById('cli-services-list');
+    if (servicesListDiv) {
+        servicesListDiv.classList.remove('hidden');
+        servicesListDiv.innerHTML = '<h3>Escolha o Serviço:</h3>';
+
+        if (services.length === 0) {
+            servicesListDiv.innerHTML += '<p>Nenhum serviço cadastrado nesta categoria ainda.</p>';
+            return;
+        }
+
+        services.forEach(srv => {
+            const item = document.createElement('div');
+            item.className = 'card';
+            item.style.marginBottom = '10px';
+            item.innerHTML = `
+                <strong>${srv.name}</strong> - R$ ${srv.price}
+                <button class="btn btn-success" style="margin-top:5px;" onclick="showTimeSlots('${srv.id}', '${proId}')">Agendar</button>
+            `;
+            servicesListDiv.appendChild(item);
+        });
+    }
+}
     
     // ESTADO DA APLICAÇÃO
     let currentPro = null;
