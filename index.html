@@ -51,16 +51,24 @@
         </div>
 
         <div id="auth-register" class="hidden">
-            <h3>Novo Cadastro Profissional</h3>
-            <input type="text" id="reg-name" placeholder="Nome Completo">
-            <input type="tel" id="reg-phone" placeholder="Telefone/WhatsApp (Único)">
-            <input type="password" id="reg-pass" placeholder="Senha">
-            <input type="text" id="reg-sec-q" placeholder="Pergunta de Segurança (ex: Nome do 1º pet?)">
-            <input type="password" id="reg-sec-a" placeholder="Resposta de Segurança">
-            <button class="btn btn-success" onclick="registerPro()">Cadastrar</button>
-            <button class="btn btn-secondary" onclick="toggleAuthMode('login')">Voltar ao Login</button>
-        </div>
+    <h3>Novo Cadastro Profissional</h3>
+    <input type="text" id="reg-name" placeholder="Nome Completo">
+    <input type="tel" id="reg-phone" placeholder="Telefone/WhatsApp (Único)">
+    <input type="password" id="reg-pass" placeholder="Senha">
+    <input type="text" id="reg-sec-q" placeholder="Pergunta de Segurança (ex: Nome do 1º pet?)">
+    <input type="password" id="reg-sec-a" placeholder="Resposta de Segurança">
 
+    <!-- ADICIONE ESTE BLOCO AQUI -->
+    <p style="text-align:left; font-weight:bold; margin-top:10px;">Ramos de Atendimento:</p>
+    <div style="text-align:left; margin-bottom:10px;">
+        <label><input type="checkbox" name="pro-spec" value="Cabeleireiro"> Cabeleireiro</label><br>
+        <label><input type="checkbox" name="pro-spec" value="Manicure"> Manicure</label><br>
+        <label><input type="checkbox" name="pro-spec" value="Design de Sobrancelhas"> Design de Sobrancelhas</label>
+    </div>
+
+    <button class="btn btn-success" onclick="registerPro()">Cadastrar</button>
+    <button class="btn btn-secondary" onclick="toggleAuthMode('login')">Voltar ao Login</button>
+</div>
         <div id="auth-recovery" class="hidden">
             <h3>Recuperar Senha</h3>
             <input type="tel" id="rec-phone" placeholder="Informe seu Telefone">
@@ -199,33 +207,44 @@
     }
 
     // AUTENTICAÇÃO E RECUPERAÇÃO DO PROFISSIONAL
-    async function registerPro() {
-        const name = document.getElementById('reg-name').value;
-        const phone = document.getElementById('reg-phone').value;
-        const password = document.getElementById('reg-pass').value;
-        const secQuestion = document.getElementById('reg-sec-q').value;
-        const secAnswer = document.getElementById('reg-sec-a').value.toLowerCase().trim();
+   async function registerPro() {
+    const name = document.getElementById('reg-name').value;
+    const phone = document.getElementById('reg-phone').value;
+    const password = document.getElementById('reg-pass').value;
+    const secQuestion = document.getElementById('reg-sec-q').value;
+    const secAnswer = document.getElementById('reg-sec-a').value.toLowerCase().trim();
 
-        if(!name || !phone || !password || !secQuestion || !secAnswer) return alert('Preencha todos os campos!');
+    // Captura os ramos selecionados
+    const selectedSpecs = Array.from(document.querySelectorAll('input[name="pro-spec"]:checked'))
+                               .map(cb => cb.value);
 
-        // Verifica duplicidade de telefone
-        const { data: existing } = await db.from('professionals').select('id').eq('phone', phone).single();
-        if(existing) return alert('Este número de telefone já está cadastrado!');
+    if(!name || !phone || !password || !secQuestion || !secAnswer) return alert('Preencha todos os campos!');
+    if(selectedSpecs.length === 0) return alert('Selecione pelo menos um ramo de atendimento!');
 
-        // Cria a grade inicial de horários ativos
-        const initialSchedule = {};
-        baseHours.forEach(h => initialSchedule[h] = true);
+    // Verifica duplicidade de telefone
+    const { data: existing } = await db.from('professionals').select('id').eq('phone', phone).single();
+    if(existing) return alert('Este número de telefone já está cadastrado!');
 
-        const { data, error } = await db.from('professionals').insert([{
-            name, phone, password, sec_question: secQuestion, sec_answer: secAnswer, schedule_config: initialSchedule
-        }]).select();
+    // Cria a grade inicial de horários
+    const initialSchedule = {};
+    baseHours.forEach(h => initialSchedule[h] = true);
 
-        if(error) return alert('Erro ao cadastrar: ' + error.message);
-        
-        alert('Cadastro realizado com sucesso!');
-        currentPro = data[0];
-        initProDashboard();
-    }
+    const { data, error } = await db.from('professionals').insert([{
+        name, 
+        phone, 
+        password, 
+        sec_question: secQuestion, 
+        sec_answer: secAnswer, 
+        schedule_config: initialSchedule,
+        specialties: selectedSpecs
+    }]).select();
+
+    if(error) return alert('Erro ao cadastrar: ' + error.message);
+    
+    alert('Cadastro realizado com sucesso!');
+    currentPro = data[0];
+    initProDashboard();
+}
 
     async function loginPro() {
         const phone = document.getElementById('login-phone').value;
