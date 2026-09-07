@@ -217,6 +217,12 @@
     }
 });
 
+<script>
+// CONFIGURAÇÃO SUPABASE
+const SUPABASE_URL = "https://gxfdsdsjpgaqvpxhwtkj.supabase.co"; 
+const SUPABASE_KEY = "sb_publishable_Gx4U4Iwhe7Q5bk3S32_iYA_Yzeltwvm";
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 // 1. FUNÇÃO QUE CARREGA AS ESPECIALIDADES
 async function loadProSpecialties(proId) {
     const { data: pro, error } = await db.from('professionals').select('specialties').eq('id', proId).single();
@@ -227,7 +233,9 @@ async function loadProSpecialties(proId) {
     }
 
     const specialties = pro.specialties || [];
-    const mainCard = document.querySelector('.card') || document.querySelector('.container') || document.body;
+    const mainCard = document.querySelector('.card') || document.querySelector('.container');
+
+    if (!mainCard) return;
 
     const cardsData = {
         'Cabeleireiro': { title: 'Cabeleireiro', desc: 'Cortes, coloração e tratamentos.' },
@@ -257,18 +265,15 @@ async function loadProSpecialties(proId) {
     mainCard.innerHTML = htmlContent;
 }
 
-// 2. VERIFICAÇÃO IMEDIATA DA URL (RODA NA HORA QUE ABRE A PÁGINA)
-(function checkProUrl() {
+// 2. VERIFICAÇÃO AUTOMÁTICA DA URL
+window.onload = function() {
     const urlParams = new URLSearchParams(window.location.search);
     const proId = urlParams.get('pro');
 
     if (proId) {
-        // Aguarda carregar os elementos e executa
-        setTimeout(() => {
-            loadProSpecialties(proId);
-        }, 300);
+        loadProSpecialties(proId);
     }
-})();
+};
     // Identifica o elemento principal da tela do cliente
     const clientView = document.getElementById('view-client') || document.getElementById('client-page');
     if (!clientView) return;
