@@ -197,22 +197,25 @@
 
     // REDIRECIONAMENTO AUTOMÁTICO AO ABRIR O LINK DO PROFISSIONAL
     document.addEventListener('DOMContentLoaded', async () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const proId = urlParams.get('pro');
+    const urlParams = new URLSearchParams(window.location.search);
+    const proId = urlParams.get('pro');
 
-        if (proId) {
-            // Esconde a tela de escolha ("Sou Cliente / Área do Profissional")
-            const landingView = document.getElementById('view-landing') || document.getElementById('landing-page');
-            if (landingView) landingView.classList.add('hidden');
+    if (proId) {
+        // Localiza a div principal do card branco
+        const mainCard = document.querySelector('.card') || document.querySelector('.container');
+        
+        if (mainCard) {
+            // Oculta os botões iniciais e exibe aviso de carregamento
+            mainCard.innerHTML = '<p style="text-align:center; padding: 20px;">Carregando opções do salão...</p>';
             
-            // Exibe direto a tela do cliente
-            const clientView = document.getElementById('view-client') || document.getElementById('client-page');
-            if (clientView) clientView.classList.remove('hidden');
-
-            // Carrega apenas os serviços/ramos do profissional
+            // Reatribui o ID para renderizar a view do cliente
+            mainCard.id = 'view-client';
+            
+            // Carrega os cards de especialidades
             await loadProSpecialties(proId);
         }
-    });
+    }
+});
 
 async function loadProSpecialties(proId) {
     // Busca as especialidades do profissional
