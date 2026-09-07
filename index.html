@@ -215,11 +215,51 @@
     });
 
 async function loadProSpecialties(proId) {
+    // Busca as especialidades do profissional
     const { data: pro, error } = await db.from('professionals').select('specialties').eq('id', proId).single();
     
-    if (error || !pro) return alert('Profissional não encontrado!');
+    if (error || !pro) {
+        console.error("Erro ao buscar profissional:", error);
+        return alert('Profissional não encontrado!');
+    }
 
     const specialties = pro.specialties || [];
+    
+    // Identifica o elemento principal da tela do cliente
+    const clientView = document.getElementById('view-client') || document.getElementById('client-page');
+    if (!clientView) return;
+
+    // Mapeamento das opções disponíveis
+    const cardsData = {
+        'Cabeleireiro': { title: 'Cabeleireiro', desc: 'Cortes, coloração e tratamentos.' },
+        'Manicure': { title: 'Manicure', desc: 'Unhas, esmaltação e cuidados.' },
+        'Design de Sobrancelhas': { title: 'Design de Sobrancelhas', desc: 'Modelagem, rena e micropigmentação.' }
+    };
+
+    // Monta o título da seção e o container da grid
+    let htmlContent = `<h2 style="margin-bottom: 20px; color: #333;">Selecione o Serviço Desejado</h2>`;
+    htmlContent += `<div id="cli-specialties-grid" class="grid" style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">`;
+
+    if (specialties.length === 0) {
+        htmlContent += `<p>Nenhuma especialidade cadastrada para este profissional.</p>`;
+    } else {
+        specialties.forEach(spec => {
+            if (cardsData[spec]) {
+                htmlContent += `
+                    <div class="card" onclick="selectSpecialty('${spec}', '${proId}')" style="cursor: pointer; padding: 20px; border: 1px solid #eee; border-radius: 8px; flex: 1; min-width: 200px; max-width: 300px; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                        <h3 style="margin-top:0; color: #8a2be2;">${cardsData[spec].title}</h3>
+                        <p style="color: #666; font-size: 14px;">${cardsData[spec].desc}</p>
+                    </div>
+                `;
+            }
+        });
+    }
+
+    htmlContent += `</div><div id="cli-services-list" class="hidden" style="margin-top: 20px;"></div>`;
+    
+    // Injeta todo o conteúdo diretamente dentro do container branco
+    clientView.innerHTML = htmlContent;
+}
     
     // Mapeamento dos textos de cada card
     const cardsData = {
