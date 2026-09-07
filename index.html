@@ -217,17 +217,58 @@
     }
 });
 
+// 1. FUNÇÃO QUE CARREGA AS ESPECIALIDADES
 async function loadProSpecialties(proId) {
-    // Busca as especialidades do profissional
     const { data: pro, error } = await db.from('professionals').select('specialties').eq('id', proId).single();
     
     if (error || !pro) {
-        console.error("Erro ao buscar profissional:", error);
-        return alert('Profissional não encontrado!');
+        alert('Profissional não encontrado!');
+        return;
     }
 
     const specialties = pro.specialties || [];
-    
+    const mainCard = document.querySelector('.card') || document.querySelector('.container') || document.body;
+
+    const cardsData = {
+        'Cabeleireiro': { title: 'Cabeleireiro', desc: 'Cortes, coloração e tratamentos.' },
+        'Manicure': { title: 'Manicure', desc: 'Unhas, esmaltação e cuidados.' },
+        'Design de Sobrancelhas': { title: 'Design de Sobrancelhas', desc: 'Modelagem, rena e micropigmentação.' }
+    };
+
+    let htmlContent = `<h2 style="margin-bottom: 20px; color: #333; text-align:center;">Selecione o Serviço Desejado</h2>`;
+    htmlContent += `<div id="cli-specialties-grid" style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">`;
+
+    if (specialties.length === 0) {
+        htmlContent += `<p style="text-align:center;">Nenhuma especialidade cadastrada para este profissional.</p>`;
+    } else {
+        specialties.forEach(spec => {
+            if (cardsData[spec]) {
+                htmlContent += `
+                    <div class="card" onclick="selectSpecialty('${spec}', '${proId}')" style="cursor: pointer; padding: 20px; border: 1px solid #ddd; border-radius: 8px; flex: 1; min-width: 200px; max-width: 300px; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                        <h3 style="margin-top:0; color: #8a2be2;">${cardsData[spec].title}</h3>
+                        <p style="color: #666; font-size: 14px;">${cardsData[spec].desc}</p>
+                    </div>
+                `;
+            }
+        });
+    }
+
+    htmlContent += `</div><div id="cli-services-list" class="hidden" style="margin-top: 20px;"></div>`;
+    mainCard.innerHTML = htmlContent;
+}
+
+// 2. VERIFICAÇÃO IMEDIATA DA URL (RODA NA HORA QUE ABRE A PÁGINA)
+(function checkProUrl() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const proId = urlParams.get('pro');
+
+    if (proId) {
+        // Aguarda carregar os elementos e executa
+        setTimeout(() => {
+            loadProSpecialties(proId);
+        }, 300);
+    }
+})();
     // Identifica o elemento principal da tela do cliente
     const clientView = document.getElementById('view-client') || document.getElementById('client-page');
     if (!clientView) return;
