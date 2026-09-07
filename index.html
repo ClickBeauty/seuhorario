@@ -229,7 +229,6 @@
         }
     };
 
-    // FUNÇÕES DE CARREGAMENTO DAS ESPECIALIDADES
     async function loadProSpecialties(proId) {
         const { data: pro, error } = await db.from('professionals').select('specialties').eq('id', proId).single();
         if (error || !pro) return;
@@ -243,7 +242,6 @@
 
         const container = document.getElementById('cli-specialties-grid');
         if (!container) return;
-
         container.innerHTML = '';
 
         if (specialties.length === 0) {
@@ -266,7 +264,6 @@
         });
     }
 
-    // AUTENTICAÇÃO E CADASTRO
     async function registerPro() {
         const name = document.getElementById('reg-name').value;
         const phone = document.getElementById('reg-phone').value;
@@ -301,28 +298,24 @@
     }
 
     async function loginPro() {
-    const phone = document.getElementById('login-phone').value;
-    const pass = document.getElementById('login-pass').value;
+        const phone = document.getElementById('login-phone').value;
+        const pass = document.getElementById('login-pass').value;
 
-    const { data, error } = await db.from('professionals').select('*').eq('phone', phone).eq('password', pass).single();
+        const { data, error } = await db.from('professionals').select('*').eq('phone', phone).eq('password', pass).single();
 
-    if (error || !data) {
-        return alert('Telefone ou senha inválidos!');
+        if(error || !data) return alert('Telefone ou senha inválidos!');
+
+        // VERIFICAÇÃO DE ASSINATURA/PAGAMENTO
+        const now = new Date();
+        const expiryDate = data.subscription_ends_at ? new Date(data.subscription_ends_at) : null;
+        if (data.is_active === false || (expiryDate && expiryDate < now)) {
+            alert('Sua assinatura está inativa ou o período de teste expirou.\nEntre em contato para renovar seu acesso.');
+            return;
+        }
+
+        currentPro = data;
+        initProDashboard();
     }
-
-    // --- VERIFICAÇÃO DE ASSINATURA/PAGAMENTO ---
-    const now = new Date();
-    const expiryDate = data.subscription_ends_at ? new Date(data.subscription_ends_at) : null;
-
-    // Se estiver desativado manualmente ou se a data de expiração já passou
-    if (data.is_active === false || (expiryDate && expiryDate < now)) {
-        alert('Sua assinatura está inativa ou o período de teste expirou.\nEntre em contato para renovar seu acesso.');
-        return; // Impede o login no painel
-    }
-
-    currentPro = data;
-    initProDashboard();
-}
 
     async function fetchSecQuestion() {
         const phone = document.getElementById('rec-phone').value;
@@ -353,7 +346,6 @@
         showView('view-landing');
     }
 
-    // PAINEL PROFISSIONAL
     function initProDashboard() {
         showView('view-pro-dashboard');
         const shareUrl = `${window.location.origin}${window.location.pathname}?pro=${currentPro.id}`;
@@ -436,6 +428,7 @@
         loadProMetricsAndAppointments();
     }
 
+    // CARREGAR MÉTRICAS E AGENDAMENTOS COM BOTÕES DE CONFIRMAR E EXCLUIR
     async function loadProMetricsAndAppointments() {
         const todayStr = new Date().toISOString().split('T')[0];
         const currentMonth = new Date().getMonth();
@@ -451,20 +444,43 @@
         const listContainer = document.getElementById('pro-appointments-list');
         listContainer.innerHTML = '';
 
+        if (!appointments || appointments.length === 0) {
+            listContainer.innerHTML = '<p>Nenhum agendamento recebido.</p>';
+        }
+
         (appointments || []).forEach(app => {
             const appDate = new Date(app.date_time);
             const isToday = app.date_time.startsWith(todayStr);
             const isThisMonth = appDate.getMonth() === currentMonth && appDate.getFullYear() === currentYear;
+            const isCompleted = app.status === 'concluido';
 
-            if(isToday) { dayVal += parseFloat(app.price); dayCount++; }
-            if(isThisMonth) { monthVal += parseFloat(app.price); monthCount++; }
+            // Conta para o financeiro apenas quando concluído
+            if (isCompleted) {
+                if(isToday) { dayVal += parseFloat(app.price); dayCount++; }
+                if(isThisMonth) { monthVal += parseFloat(app.price); monthCount++; }
+            }
+
+            const statusBadge = isCompleted 
+                ? '<span style="color: #198754; font-weight: bold;">✔ Concluído</span>' 
+                : '<span style="color: #fd7e14; font-weight: bold;">⏳ Pendente</span>';
+
+            const actionButtons = isCompleted 
+                ? `<button class="btn btn-danger" style="padding: 6px 12px; font-size: 14px; width: auto; margin-top: 5px;" onclick="deleteAppointment('${app.id}')">Excluir</button>`
+                : `
+                    <div style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;">
+                        <button class="btn btn-success" style="padding: 6px 12px; font-size: 14px; width: auto; margin: 0;" onclick="confirmAppointment('${app.id}')">Confirmar Serviço</button>
+                        <button class="btn btn-danger" style="padding: 6px 12px; font-size: 14px; width: auto; margin: 0;" onclick="deleteAppointment('${app.id}')">Excluir</button>
+                    </div>
+                  `;
 
             listContainer.innerHTML += `
                 <div class="card" style="margin-bottom:10px;">
                     <p><strong>Cliente:</strong> ${app.client_name} (${app.client_phone})</p>
                     <p><strong>Serviço:</strong> ${app.service_name} - R$ ${parseFloat(app.price).toFixed(2)}</p>
-                    <p><strong>Data/Hora do Serviço:</strong> ${new Date(app.date_time).toLocaleString('pt-BR')}</p>
+                    <p><strong>Data/Hora:</strong> ${new Date(app.date_time).toLocaleString('pt-BR')}</p>
+                    <p><strong>Status:</strong> ${statusBadge}</p>
                     <small>Agendado em: ${new Date(app.created_at).toLocaleString('pt-BR')}</small>
+                    <div>${actionButtons}</div>
                 </div>
             `;
         });
@@ -484,7 +500,26 @@
         document.getElementById('m-net-val').innerText = `Líquido: R$ ${(monthVal - monthExp).toFixed(2)}`;
     }
 
-    // ÁREA DO CLIENTE - SELEÇÃO DE SERVIÇOS E HORÁRIOS
+    async function confirmAppointment(id) {
+        const { error } = await db.from('appointments').update({ status: 'concluido' }).eq('id', id);
+        if (error) {
+            alert('Erro ao confirmar serviço: ' + error.message);
+        } else {
+            loadProMetricsAndAppointments();
+        }
+    }
+
+    async function deleteAppointment(id) {
+        if (!confirm('Tem certeza que deseja excluir este agendamento?')) return;
+        const { error } = await db.from('appointments').delete().eq('id', id);
+        if (error) {
+            alert('Erro ao excluir agendamento: ' + error.message);
+        } else {
+            loadProMetricsAndAppointments();
+        }
+    }
+
+    // ÁREA DO CLIENTE
     async function selectCategory(cat) {
         selectedCategory = cat;
         document.getElementById('client-cat-title').innerText = `Serviços de ${cat}`;
@@ -580,7 +615,8 @@
             client_phone: phone,
             service_name: selectedService.name,
             price: selectedService.price,
-            date_time: dateTime
+            date_time: dateTime,
+            status: 'pendente'
         }]);
 
         if(error) return alert('Erro ao realizar agendamento: ' + error.message);
