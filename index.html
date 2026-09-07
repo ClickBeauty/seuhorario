@@ -301,15 +301,28 @@
     }
 
     async function loginPro() {
-        const phone = document.getElementById('login-phone').value;
-        const pass = document.getElementById('login-pass').value;
+    const phone = document.getElementById('login-phone').value;
+    const pass = document.getElementById('login-pass').value;
 
-        const { data, error } = await db.from('professionals').select('*').eq('phone', phone).eq('password', pass).single();
+    const { data, error } = await db.from('professionals').select('*').eq('phone', phone).eq('password', pass).single();
 
-        if(error || !data) return alert('Telefone ou senha inválidos!');
-        currentPro = data;
-        initProDashboard();
+    if (error || !data) {
+        return alert('Telefone ou senha inválidos!');
     }
+
+    // --- VERIFICAÇÃO DE ASSINATURA/PAGAMENTO ---
+    const now = new Date();
+    const expiryDate = data.subscription_ends_at ? new Date(data.subscription_ends_at) : null;
+
+    // Se estiver desativado manualmente ou se a data de expiração já passou
+    if (data.is_active === false || (expiryDate && expiryDate < now)) {
+        alert('Sua assinatura está inativa ou o período de teste expirou.\nEntre em contato para renovar seu acesso.');
+        return; // Impede o login no painel
+    }
+
+    currentPro = data;
+    initProDashboard();
+}
 
     async function fetchSecQuestion() {
         const phone = document.getElementById('rec-phone').value;
