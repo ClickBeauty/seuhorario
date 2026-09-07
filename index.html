@@ -24,6 +24,19 @@
         .slot-btn { padding: 8px; margin: 4px; border: 1px solid var(--primary); background: white; cursor: pointer; border-radius: 4px; }
         .slot-btn.active { background: var(--primary); color: white; }
         .slot-btn.disabled { background: #e0e0e0; border-color: #ccc; cursor: not-allowed; text-decoration: line-through; }
+    .slot-btn.disabled { background: #e0e0e0; border-color: #ccc; cursor: not-allowed; text-decoration: line-through; }
+        
+        .hero-banner {
+            width: 100%;
+            height: 220px;
+            background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://image.pollinations.ai/prompt/A%20high-resolution,%20professional%20and%20warm%20photograph%20of%20a%20modern,%20bright%20beauty%20salon%20environment.%20A%20friendly%20female%20hairdresser%20and%20a%20manicurist%20happily%20serving%20a%20smiling%20client%20sitting%20in%20a%20styling%20chair.%20Warm%20and%20inviting%20soft%20lighting,%20stylish%20interior%20with%20subtle%20pink,%20purple,%20and%20neutral%20accents.%20Clean%20aesthetic,%20shot%20on%20a%20professional%20camera,%20shallow%20depth%20of%20field,%204k%20resolution,%20cinematic%20look.?width=1200&height=500&nologo=true');
+            background-size: cover;
+            background-position: center;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 20px;
+        }
+    </style>
+    
     </style>
 </head>
 <body>
@@ -33,8 +46,8 @@
     <p>Agendamentos Online</p>
 </header>
 
-<div class="container">
-    <div id="view-landing">
+<div id="view-landing">
+        <div class="hero-banner"></div>
         <h3>Como deseja prosseguir?</h3>
         <button class="btn" onclick="showView('view-client-categories')">Sou Cliente</button>
         <button class="btn btn-secondary" onclick="showView('view-pro-auth')">Área do Profissional</button>
