@@ -59,12 +59,21 @@
     <input type="password" id="reg-sec-a" placeholder="Resposta de Segurança">
 
     <!-- ADICIONE ESTE BLOCO AQUI -->
-    <p style="text-align:left; font-weight:bold; margin-top:10px;">Ramos de Atendimento:</p>
-    <div style="text-align:left; margin-bottom:10px;">
-        <label><input type="checkbox" name="pro-spec" value="Cabeleireiro"> Cabeleireiro</label><br>
-        <label><input type="checkbox" name="pro-spec" value="Manicure"> Manicure</label><br>
-        <label><input type="checkbox" name="pro-spec" value="Design de Sobrancelhas"> Design de Sobrancelhas</label>
-    </div>
+    <p style="text-align:left; font-weight:bold; margin-top:15px; margin-bottom:10px;">Ramos de Atendimento:</p>
+<div style="display: flex; flex-direction: column; gap: 8px; text-align: left; margin-bottom: 15px;">
+    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; width: auto;">
+        <input type="checkbox" name="pro-spec" value="Cabeleireiro" style="width: auto; margin: 0;">
+        <span>Cabeleireiro</span>
+    </label>
+    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; width: auto;">
+        <input type="checkbox" name="pro-spec" value="Manicure" style="width: auto; margin: 0;">
+        <span>Manicure</span>
+    </label>
+    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; width: auto;">
+        <input type="checkbox" name="pro-spec" value="Design de Sobrancelhas" style="width: auto; margin: 0;">
+        <span>Design de Sobrancelhas</span>
+    </label>
+</div>
 
     <button class="btn btn-success" onclick="registerPro()">Cadastrar</button>
     <button class="btn btn-secondary" onclick="toggleAuthMode('login')">Voltar ao Login</button>
