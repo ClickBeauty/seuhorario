@@ -133,6 +133,9 @@
             <input type="text" id="exp-desc" placeholder="Descrição da Despesa">
             <input type="number" id="exp-amount" placeholder="Valor (R$)" step="0.01">
             <button class="btn btn-danger" onclick="addExpense()">Registrar Despesa</button>
+            
+            <h4 style="margin-top:20px; border-top: 1px solid #eee; padding-top: 15px;">Despesas Registradas</h4>
+            <div id="pro-expenses-list"></div>
         </div>
 
         <div class="card" style="margin-top: 15px;">
@@ -428,14 +431,20 @@
         loadProMetricsAndAppointments();
     }
 
-    // CARREGAR MÉTRICAS E AGENDAMENTOS COM BOTÕES DE CONFIRMAR E EXCLUIR
+    async function deleteExpense(id) {
+        if(!confirm('Deseja excluir esta despesa?')) return;
+        await db.from('expenses').delete().eq('id', id);
+        loadProMetricsAndAppointments();
+    }
+
+    // CARREGAR MÉTRICAS, AGENDAMENTOS E DESPESAS
     async function loadProMetricsAndAppointments() {
         const todayStr = new Date().toISOString().split('T')[0];
         const currentMonth = new Date().getMonth();
         const currentYear = new Date().getFullYear();
 
         const { data: appointments } = await db.from('appointments').select('*').eq('pro_id', currentPro.id).order('date_time', { ascending: true });
-        const { data: expenses } = await db.from('expenses').select('*').eq('pro_id', currentPro.id);
+        const { data: expenses } = await db.from('expenses').select('*').eq('pro_id', currentPro.id).order('date', { ascending: false });
 
         let dayVal = 0, dayCount = 0;
         let monthVal = 0, monthCount = 0;
@@ -454,7 +463,6 @@
             const isThisMonth = appDate.getMonth() === currentMonth && appDate.getFullYear() === currentYear;
             const isCompleted = app.status === 'concluido';
 
-            // Conta para o financeiro apenas quando concluído
             if (isCompleted) {
                 if(isToday) { dayVal += parseFloat(app.price); dayCount++; }
                 if(isThisMonth) { monthVal += parseFloat(app.price); monthCount++; }
@@ -485,11 +493,29 @@
             `;
         });
 
+        // LISTAR DESPESAS
+        const expListContainer = document.getElementById('pro-expenses-list');
+        expListContainer.innerHTML = '';
+
+        if (!expenses || expenses.length === 0) {
+            expListContainer.innerHTML = '<p style="color:#6c757d; font-size:14px;">Nenhuma despesa cadastrada.</p>';
+        }
+
         (expenses || []).forEach(exp => {
             const expDate = new Date(exp.date);
             if(expDate.getMonth() === currentMonth && expDate.getFullYear() === currentYear) {
                 monthExp += parseFloat(exp.amount);
             }
+
+            expListContainer.innerHTML += `
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0f0f0; padding: 8px 0;">
+                    <div>
+                        <strong>${exp.description}</strong> - <span style="color: #dc3545; font-weight: bold;">R$ ${parseFloat(exp.amount).toFixed(2)}</span>
+                        <br><small style="color: #6c757d;">${expDate.toLocaleDateString('pt-BR')}</small>
+                    </div>
+                    <button class="btn btn-danger" style="width: auto; padding: 4px 8px; font-size: 12px; margin: 0;" onclick="deleteExpense('${exp.id}')">Excluir</button>
+                </div>
+            `;
         });
 
         document.getElementById('m-day-val').innerText = `R$ ${dayVal.toFixed(2)}`;
