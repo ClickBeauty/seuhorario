@@ -88,7 +88,19 @@ body {
         <button class="btn" onclick="showView('view-client-categories')">Sou Cliente</button>
         <button class="btn btn-secondary" onclick="showView('view-pro-auth')">Área do Profissional</button>
     </div>
+    <!-- Tela de Categorias do Cliente -->
+<div id="view-client-categories" class="view" style="display: none;">
+    <h3 style="text-align: center; margin-top: 20px;">Selecione a Categoria</h3>
     
+    <div class="category-list" style="display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 20px auto; padding: 0 15px;">
+        <button class="btn" onclick="selectCategory('Cabelo')">Cabelo</button>
+        <button class="btn" onclick="selectCategory('Unhas')">Unhas</button>
+        <button class="btn" onclick="selectCategory('Estética')">Estética</button>
+        <button class="btn" onclick="selectCategory('Maquiagem')">Maquiagem</button>
+        
+        <button class="btn btn-secondary" style="margin-top: 15px;" onclick="showView('view-landing')">Voltar</button>
+    </div>
+</div>
     <div id="view-pro-auth" class="hidden">
         <h2>Acesso Profissional</h2>
         <div id="auth-login">
