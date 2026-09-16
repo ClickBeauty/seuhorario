@@ -91,13 +91,19 @@ body {
     </div>
 </div>
 
-<!-- Tela do Cliente -->
-<div id="view-client-categories" class="view" style="display: none;">
-    <h3 style="text-align: center; color: #ffffff;">Selecione a Categoria</h3>
-    <div class="category-list" style="display: flex; flex-direction: column; gap: 10px; max-width: 300px; margin: 20px auto;">
-        <button class="btn">Cabelo</button>
-        <button class="btn">Unhas</button>
-        <button class="btn btn-secondary" onclick="showView('view-landing')">Voltar</button>
+<!-- Tela de Agendamento do Cliente -->
+<div id="view-client-booking" class="view hidden">
+    <h3 style="text-align: center; color: #ffffff;">Agendar Horário</h3>
+    
+    <div style="max-width: 300px; margin: 20px auto; display: flex; flex-direction: column; gap: 10px;">
+        <p style="color: #ffffff; text-align: center;">Escolha os detalhes do seu atendimento:</p>
+        
+        <!-- Exemplo de formulário de agendamento -->
+        <input type="date" class="input-field" style="padding: 10px; border-radius: 5px; border: none;">
+        <input type="time" class="input-field" style="padding: 10px; border-radius: 5px; border: none;">
+        
+        <button class="btn">Confirmar Agendamento</button>
+        <button class="btn btn-secondary" onclick="showView('view-client-categories')">Voltar</button>
     </div>
 </div>
    <!-- Tela de Categorias do Cliente -->
