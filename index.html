@@ -82,12 +82,24 @@ body {
     <p>Agendamentos Online</p>
 </header>
 
-<div id="view-landing">
+<!-- Tela Inicial -->
+<div id="view-landing" class="view">
     <h3 style="text-align: center; color: #ffffff;">Como deseja prosseguir?</h3>
     <div class="btn-group">
         <button class="btn" onclick="showView('view-client-categories')">Sou Cliente</button>
         <button class="btn btn-secondary" onclick="showView('view-pro-auth')">Área do Profissional</button>
     </div>
+</div>
+
+<!-- Tela do Cliente -->
+<div id="view-client-categories" class="view" style="display: none;">
+    <h3 style="text-align: center; color: #ffffff;">Selecione a Categoria</h3>
+    <div class="category-list" style="display: flex; flex-direction: column; gap: 10px; max-width: 300px; margin: 20px auto;">
+        <button class="btn">Cabelo</button>
+        <button class="btn">Unhas</button>
+        <button class="btn btn-secondary" onclick="showView('view-landing')">Voltar</button>
+    </div>
+</div>
    <!-- Tela de Categorias do Cliente -->
 <div id="view-client-categories" class="view" style="display: none;">
     <h3 style="text-align: center; margin-top: 20px;">Selecione a Categoria</h3>
@@ -267,14 +279,22 @@ body {
 
     // NAVEGAÇÃO DE TELAS
     function showView(viewId) {
-        const views = ['view-landing', 'view-pro-auth', 'view-pro-dashboard', 'view-client-categories', 'view-client-booking'];
-        views.forEach(v => {
-            const el = document.getElementById(v);
-            if (el) el.classList.add('hidden');
-        });
-        const targetView = document.getElementById(viewId);
-        if (targetView) targetView.classList.remove('hidden');
+    // 1. Esconde todas as telas que possuem a classe 'view'
+    const views = document.querySelectorAll('.view');
+    views.forEach(view => {
+        view.style.display = 'none';
+    });
+
+    // 2. Busca a tela desejada pelo ID
+    const targetView = document.getElementById(viewId);
+    
+    // 3. Exibe a tela desejada se ela existir
+    if (targetView) {
+        targetView.style.display = 'block';
+    } else {
+        console.error('Tela não encontrada:', viewId);
     }
+}
 
     function toggleAuthMode(mode) {
         document.getElementById('auth-login').classList.add('hidden');
