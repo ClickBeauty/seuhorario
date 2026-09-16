@@ -107,16 +107,14 @@ body {
     </div>
 </div>
    <!-- Tela de Categorias do Cliente -->
-<div id="view-client-categories" class="view" style="display: none;">
-    <h3 style="text-align: center; margin-top: 20px;">Selecione a Categoria</h3>
-    
-    <div class="category-list" style="display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 20px auto; padding: 0 15px;">
-        <button class="btn" onclick="selectCategory('Cabelo')">Cabelo</button>
-        <button class="btn" onclick="selectCategory('Unhas')">Unhas</button>
-        <button class="btn" onclick="selectCategory('Estética')">Estética</button>
-        <button class="btn" onclick="selectCategory('Maquiagem')">Maquiagem</button>
-        
-        <button class="btn btn-secondary" style="margin-top: 15px;" onclick="showView('view-landing')">Voltar</button>
+<div id="view-client-categories" class="view hidden">
+    <h3 style="text-align: center; color: #ffffff;">Selecione a Categoria</h3>
+    <div class="btn-group">
+        <button class="btn" onclick="showView('view-client-booking')">Cabelo</button>
+        <button class="btn" onclick="showView('view-client-booking')">Unhas</button>
+        <button class="btn" onclick="showView('view-client-booking')">Estética</button>
+        <button class="btn" onclick="showView('view-client-booking')">Maquiagem</button>
+        <button class="btn btn-secondary" onclick="showView('view-landing')">Voltar</button>
     </div>
 </div>
     <div id="view-pro-auth" class="hidden">
